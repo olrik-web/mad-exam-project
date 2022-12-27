@@ -49,8 +49,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // FixedUpdate is called once per physics update.
     void FixedUpdate()
     {
+        // If the last active canvas is the game UI, allow the player to move.
         if (canvasManager.lastActiveCanvas.canvasType == CanvasType.GameUI)
         {
             // Get the horizontal and vertical input.
@@ -67,10 +69,12 @@ public class PlayerController : MonoBehaviour
                 // If the joystick vertical or horizontal input is greater than 0.5, set the player to running.
                 if (Mathf.Abs(vertical) > 0.5f || Mathf.Abs(horizontal) > 0.5f)
                 {
+                    // Set the player to running.
                     isRunning = true;
                 }
                 else
                 {
+                    // Set the player to walking.
                     isRunning = false;
                 }
             }
@@ -83,18 +87,12 @@ public class PlayerController : MonoBehaviour
                 float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
                 transform.rotation = Quaternion.Euler(0f, targetAngle, 0f);
                 // Move the player in the direction of the moveDirection vector.
-                if (isRunning)
-                {
-                    rb.MovePosition(rb.position + moveDirection * runSpeed * Time.fixedDeltaTime);
+                // if (isRunning)
+                // {
+                    rb.MovePosition(rb.position + moveDirection * (isRunning ? runSpeed : walkSpeed) * Time.fixedDeltaTime);
                     // Adjust the animator parameters. 
-                    anim.SetFloat("Speed", runSpeed);
-                }
-                else
-                {
-                    rb.MovePosition(rb.position + moveDirection * walkSpeed * Time.fixedDeltaTime);
-                    // Adjust the animator parameters. 
-                    anim.SetFloat("Speed", walkSpeed);
-                }
+                    anim.SetFloat("Speed", isRunning ? runSpeed : walkSpeed);
+                // }
             }
             else
             {
