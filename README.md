@@ -1,5 +1,5 @@
 
-# Calm Cuisine :fork_and_knife: :iphone:
+# Calm Cuisine :fork_and_knife::iphone:
 
 Calm Cuisine is a 3D mobile game created using Unity and C#. It was a project for my Mobile Application Development class at Business Academy Aarhus. 
 
