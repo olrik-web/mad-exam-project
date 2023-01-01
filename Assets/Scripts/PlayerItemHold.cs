@@ -5,195 +5,35 @@ using UnityEngine;
 
 public class PlayerItemHold : MonoBehaviour
 {
-    private GameObject heldItem;
-    private bool holdingItem = false;
-    private float holdDistance = 2f;
-    private PlayerController player;
-    private CanvasManager canvasManager;
-
-    private AudioManager audioManager;
+    private GameObject heldItem; // The item that the player is holding.
+    private bool holdingItem = false; // Is the player holding an item?
+    private float holdDistance = 2f; // The distance at which the player can hold an item.
+    private PlayerController player; // The player controller component.
+    private CanvasManager canvasManager; // The canvas manager component.
+    private AudioManager audioManager; // The audio manager component.
 
 
     // Start is called before the first frame update
     void Start()
     {
+        // Get the player controller component.
         player = GetComponent<PlayerController>();
+        // Get the canvas manager component.
         canvasManager = CanvasManager.GetInstance();
+        // Get the audio manager component.
         audioManager = GameObject.FindObjectOfType<AudioManager>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.E) && canvasManager.lastActiveCanvas.canvasType == CanvasType.GameUI)
-        {
-            if (holdingItem)
-            {
-                // Check if the item is a item that has to be placed on the ground.
-                if (heldItem.GetComponent<ItemClass>().itemType == ItemType.Placeable || heldItem.GetComponent<ItemClass>().itemType == ItemType.Seating)
-                {
-                    // Place the item on the ground.
-                    PlaceItem();
-                    return;
-                }
-                // Check if we are standing in front of a chopping block, if so, chop the item. Else if we are standing in front of a stove, cook the item.
-                RaycastHit hit;
-                if (Physics.Raycast(transform.position, transform.forward, out hit, holdDistance))
-                {
-                    // Get the ItemPlaceable component of the object we are looking at.
-                    ItemPlaceable itemPlaceable = hit.transform.GetComponent<ItemPlaceable>();
-                    if (hit.collider.gameObject.tag == "ChoppingBlock")
-                    {
-                        ItemIngredient tempItem = heldItem.GetComponent<ItemIngredient>();
-                        // Chop the item if it can be chopped and freeze the player's movement while chopping.
-                        if (tempItem && tempItem.canChop && !itemPlaceable.isOccupied)
-                        {
-                            tempItem.Chop(hit.collider.gameObject);
-                            DropItem();
-                            player.FreezeMovement(tempItem.chopTime);
-                        }
-                    }
-                    else if (hit.collider.gameObject.tag == "Stove")
-                    {
-                        ItemIngredient tempItem = heldItem.GetComponent<ItemIngredient>();
-                        // Cook the item if it can be cooked. 
-                        if (tempItem && tempItem.canCook && !itemPlaceable.isOccupied)
-                        {
-                            tempItem.Cook(hit.collider.gameObject);
-                            DropItem();
-                        }
-                    }
-                    else if (hit.collider.gameObject.tag == "CustomerChair")
-                    {
-                        ItemOrder tempItem = heldItem.GetComponent<ItemOrder>();
-                        // Serve the item if it can be served.
-                        if (tempItem && tempItem.canServe)
-                        {
-                            // Get the customer component gameobject which is a child of the chair.
-                            Customer customer = hit.collider.gameObject.transform.GetChild(0).GetComponent<Customer>();
-                            if (customer)
-                            {
-                                bool itemServed = customer.ServeItem(tempItem);
-                                if (itemServed)
-                                {
-                                    audioManager.Play("Serve");
-                                    Debug.Log("Served " + tempItem.itemName);
-                                    DropItemAndDestory();
-                                }
-                            }
-
-                        }
-                    }
-                    else if (hit.collider.gameObject.tag == "Trash")
-                    {
-                        DropItemAndDestory();
-                    }
-                    else
-                    {
-                        Debug.Log("Can't chop or cook here");
-                        DropItem();
-                    }
-                }
-                else
-                {
-                    DropItem();
-                }
-            }
-            else
-            {
-                RaycastHit hit;
-                Debug.DrawRay(transform.position, transform.forward * holdDistance, Color.red, 2f);
-                if (Physics.Raycast(transform.position, transform.forward, out hit, holdDistance))
-                {
-                    // If we are standing in front of an ingredient box, spawn an item from the box.
-                    if (hit.collider.gameObject.tag == "IngredientBox")
-                    {
-                        // Check if the box has an item child. If so, pick it up. Else, spawn a new item.
-                        if (hit.collider.gameObject.transform.childCount > 0)
-                        {
-                            // Find the first child with the tag "Item".
-                            Transform item = hit.collider.gameObject.transform.Find("Item");
-                            if (item)
-                            {
-                                PickUpSpecificItem(item.gameObject);
-                            }
-                        }
-                        else
-                        {
-                            ItemClass tempItem = hit.collider.gameObject.GetComponent<IngredientBox>().SpawnItem();
-                            if (tempItem != null)
-                            {
-                                PickUpItemFromBox(tempItem);
-                            }
-                        }
-                    }
-                    else if (hit.collider.gameObject.tag == "ChoppingBlock")
-                    {
-                        // Check if the chopping block has an item child. If so, pick it up.
-                        if (hit.collider.gameObject.transform.childCount > 0)
-                        {
-                            // Find the first child with the tag "Item".
-                            Transform item = hit.collider.gameObject.transform.Find("Item");
-                            if (item)
-                            {
-                                PickUpSpecificItem(item.gameObject);
-                            }
-                        }
-                    }
-                    else if (hit.collider.gameObject.tag == "Stove")
-                    {
-                        // Check if the stove has an item child. If so, pick it up.
-                        if (hit.collider.gameObject.transform.childCount > 0)
-                        {
-                            // Find the first child with the tag "Item".
-                            Transform item = hit.collider.gameObject.transform.Find("Item");
-                            if (item)
-                            {
-                                PickUpSpecificItem(item.gameObject);
-                            }
-                        }
-                    }
-                }
-                PickUpItem();
-            }
-        }
-
-        // If held item is a placeable item. Show the placement indicator and move the placement indicator to the nearest grid position.
-        if (heldItem != null && (heldItem.GetComponent<ItemClass>().itemType == ItemType.Placeable || heldItem.GetComponent<ItemClass>().itemType == ItemType.Seating))
-        {
-            // Get the placement indicator using tag
-            GameObject placementIndicator = GameObject.FindGameObjectWithTag("PlacementIndicator");
-
-            // Activate the mesh renderer of the placement indicator.
-            placementIndicator.GetComponent<MeshRenderer>().enabled = true;
-
-            // Move the placement indicator to the nearest grid position. 
-            Vector3 gridPosition = GetNearestGridPosition(true);
-
-            // Check if the grid position is occupied. If so, change the color of the placement indicator to red. Else, change the color to green.
-            if (IsGridPositionOccupied(gridPosition))
-            {
-                placementIndicator.GetComponent<Renderer>().material.color = Color.red;
-            }
-            else
-            {
-                placementIndicator.GetComponent<Renderer>().material.color = Color.green;
-            }
-
-            // Move the placement indicator to the nearest grid position.
-            placementIndicator.transform.position = gridPosition;
-
-
-        }
     }
 
     // Interact function when pressing the interact button on mobile. This is the same function as the Update function above. 
     public void Interact()
     {
+        // If the last active canvas is the game UI, allow the player to interact with items.
         if (canvasManager.lastActiveCanvas.canvasType == CanvasType.GameUI)
         {
+            // Check if the player is holding an item.
             if (holdingItem)
             {
+                // Get the item class of the item that the player is holding.
                 ItemClass tempItemPlaceable = heldItem.GetComponent<ItemClass>();
                 // Check if the item is a item that has to be placed on the ground.
                 if (tempItemPlaceable.itemType == ItemType.Placeable || tempItemPlaceable.itemType == ItemType.Seating)
@@ -201,10 +41,10 @@ public class PlayerItemHold : MonoBehaviour
                     // Place the item on the ground.
                     PlaceItem();
                     return;
-                } else if (tempItemPlaceable.itemType == ItemType.Decoration)
+                }
+                else if (tempItemPlaceable.itemType == ItemType.Decoration)
                 {
-                    Debug.Log("Decoration");
-                    // Check if the item is an order item. If so, drop the item.
+                    // Place the item on the ground.
                     DropItem(0.5f, 0f);
                     return;
                 }
@@ -256,6 +96,7 @@ public class PlayerItemHold : MonoBehaviour
 
                         }
                     }
+                    // If we are standing in front of a trash can, destroy the item.
                     else if (hit.collider.gameObject.tag == "Trash")
                     {
                         DropItemAndDestory();
@@ -271,6 +112,7 @@ public class PlayerItemHold : MonoBehaviour
                     DropItem();
                 }
             }
+            // If the player is not holding an item, check if we are standing in front of an ingredient box or a chopping block.
             else
             {
                 RaycastHit hit;
@@ -338,6 +180,7 @@ public class PlayerItemHold : MonoBehaviour
         holdingItem = true;
     }
 
+    // Pick up an item from the shop and set it as the held item.
     public void CarryItemFromShop(ItemClass item)
     {
         // Instantiate the item and set it as the held item.
@@ -357,6 +200,7 @@ public class PlayerItemHold : MonoBehaviour
         canvasManager.SwitchCanvas(CanvasType.GameUI);
     }
 
+    // Place the held item on the ground in front of the player.
     void PlaceItem()
     {
         // Get the nearest grid position.
@@ -392,10 +236,9 @@ public class PlayerItemHold : MonoBehaviour
             // Set the holding item bool to false.
             holdingItem = false;
         }
-
-
     }
 
+    // Pick up the closest item to the player.
     void PickUpItem()
     {
         // Get the closest item to the player
@@ -447,6 +290,7 @@ public class PlayerItemHold : MonoBehaviour
         }
     }
 
+    // Pick up a specific item. Used for picking up items from tables. 
     void PickUpSpecificItem(GameObject item)
     {
         if (item.TryGetComponent<ItemIngredient>(out ItemIngredient ingredient))
@@ -530,6 +374,7 @@ public class PlayerItemHold : MonoBehaviour
         heldItem = null;
         holdingItem = false;
     }
+
     void DropItemAndDestory()
     {
         // Remove the item's parent
@@ -541,6 +386,7 @@ public class PlayerItemHold : MonoBehaviour
         holdingItem = false;
     }
 
+    // Get the nearest grid position in front of the player using the player's forward vector.
     private Vector3 GetNearestGridPosition(bool inFrontOfPlayer)
     {
         if (inFrontOfPlayer)
@@ -556,12 +402,9 @@ public class PlayerItemHold : MonoBehaviour
         {
             return new Vector3(Mathf.Round(transform.position.x), Mathf.Round(transform.position.y), Mathf.Round(transform.position.z));
         }
-        // Get the nearest grid position to the player.
-        // Vector3 playerPosition = transform.position;
-        // Vector3 gridPosition = new Vector3(Mathf.Round(playerPosition.x), Mathf.Round(playerPosition.y), Mathf.Round(playerPosition.z));
-        // return gridPosition;
     }
 
+    // Check if the grid position is occupied. 
     private bool IsGridPositionOccupied(Vector3 gridPosition)
     {
         // Check if the grid position is occupied.
@@ -580,8 +423,5 @@ public class PlayerItemHold : MonoBehaviour
             }
         }
         return false;
-
     }
 }
-
-

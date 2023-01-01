@@ -4,49 +4,21 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private Rigidbody rb;
-    private float walkSpeed = 0.5f;
-    public Animator anim;
-
-    private CanvasManager canvasManager;
-
-    private float runSpeed = 2f;
-    private bool isRunning = false;
-    public Joystick joystick;
-
-
+    private Rigidbody rb; // The rigidbody of the player.
+    private float walkSpeed = 0.5f; // The speed of the player when walking.
+    public Animator anim; // The animator of the player.
+    private CanvasManager canvasManager; // The canvas manager.
+    private float runSpeed = 2f; // The speed of the player when running.
+    private bool isRunning = false; // Is the player running?
+    public Joystick joystick; // The joystick used to move the player.
 
     // Start is called before the first frame update
     void Start()
     {
+        // Get the rigidbody of the player.
         rb = GetComponent<Rigidbody>();
+        // Get the canvas manager reference.
         canvasManager = CanvasManager.GetInstance();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        // If the player presses the "I" key, disable or enable the shop canvas.
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            Debug.Log("Pressed I key.");
-            // If the shop canvas is enabled, disable it.
-            if (canvasManager.lastActiveCanvas.canvasType == CanvasType.Shop)
-            {
-                canvasManager.SwitchCanvas(CanvasType.GameUI);
-            }
-            else
-            {
-                canvasManager.SwitchCanvas(CanvasType.Shop);
-            }
-        }
-
-        // If the player presses the "Shift" key, enable or disable running.
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            Debug.Log("Pressed Shift key.");
-            isRunning = !isRunning;
-        }
     }
 
     // FixedUpdate is called once per physics update.
@@ -87,12 +59,9 @@ public class PlayerController : MonoBehaviour
                 float targetAngle = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
                 transform.rotation = Quaternion.Euler(0f, targetAngle, 0f);
                 // Move the player in the direction of the moveDirection vector.
-                // if (isRunning)
-                // {
-                    rb.MovePosition(rb.position + moveDirection * (isRunning ? runSpeed : walkSpeed) * Time.fixedDeltaTime);
-                    // Adjust the animator parameters. 
-                    anim.SetFloat("Speed", isRunning ? runSpeed : walkSpeed);
-                // }
+                rb.MovePosition(rb.position + moveDirection * (isRunning ? runSpeed : walkSpeed) * Time.fixedDeltaTime);
+                // Adjust the animator parameters. 
+                anim.SetFloat("Speed", isRunning ? runSpeed : walkSpeed);
             }
             else
             {
@@ -102,9 +71,12 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // Freeze the player's movement for a specified amount of time.
     public void FreezeMovement(int freezeTime = 0)
     {
+        // Set the Animator's Speed parameter to 0. Idle animation will play.
         anim.SetFloat("Speed", 0f);
+        // Disable the player's movement.
         this.enabled = false;
         // If a freeze time is specified, unfreeze the player after the specified time.
         if (freezeTime > 0)
@@ -113,6 +85,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // Enable the player's movement after a specified amount of time.
     IEnumerator EnablePlayerMovement(int freezeTime = 1)
     {
         // Wait for the item to finish chopping
@@ -122,6 +95,7 @@ public class PlayerController : MonoBehaviour
         this.enabled = true;
     }
 
+    // Unfreeze the player's movement.
     public void UnFreezeMovement()
     {
         if (!this.enabled)

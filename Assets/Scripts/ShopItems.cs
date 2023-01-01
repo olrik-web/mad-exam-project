@@ -66,6 +66,7 @@ public class ShopItems : MonoBehaviour
         itemSelector.transform.position = shopSlot.transform.position;
     }
 
+    // BuyItem() is called when the player clicks the buy button.
     public void BuyItem()
     {
         // Get the shop slot script.

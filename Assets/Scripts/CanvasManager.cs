@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-
+// The different types of CanvasControllers. We use this to switch between the different CanvasControllers.
 public enum CanvasType
 {
-    MainMenu,
+    PauseMenu,
     GameUI,
     EndScreen,
     Shop
@@ -14,8 +14,8 @@ public enum CanvasType
 
 public class CanvasManager : Singleton<CanvasManager>
 {
-    List<CanvasController> canvasControllers;
-    public CanvasController lastActiveCanvas;
+    List<CanvasController> canvasControllers; // A list of all the CanvasControllers in the scene.
+    public CanvasController lastActiveCanvas; // The last active CanvasController.
 
     protected override void Awake()
     {

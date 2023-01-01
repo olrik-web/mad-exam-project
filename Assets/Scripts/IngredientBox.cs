@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class IngredientBox : MonoBehaviour
 {
-    public ItemClass item;
+    public ItemClass item; // The item that the ingredient box will spawn.
 
+    // Spawn an item from the ingredient box.
     public ItemClass SpawnItem()
     {
         // Instantiate a new item from the item variable.

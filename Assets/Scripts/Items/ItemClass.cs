@@ -12,9 +12,8 @@ public enum ItemType
 
 public class ItemClass : MonoBehaviour
 {
-    public string itemName;
-    // An image of the item.
-    public Sprite itemImage;
-    public ItemType itemType;
+    public string itemName; // The name of the item.
+    public Sprite itemImage; // An image of the item.
+    public ItemType itemType; // The type of the item.
 
 }

@@ -15,12 +15,6 @@ public class ShopSlot : MonoBehaviour
     // The text of the item cost.
     public TextMeshProUGUI itemCostText;
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     // Buy the item in the shop slot.
     public void BuyItem()
     {

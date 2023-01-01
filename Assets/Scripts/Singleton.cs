@@ -2,10 +2,11 @@ using UnityEngine;
 
 public abstract class Singleton<T> : MonoBehaviour where T : Component
 {
-    private static T instance;
+    private static T instance; // The instance of the singleton.
 
-    private static bool m_applicationIsQuitting = false;
+    private static bool m_applicationIsQuitting = false; // Is the application quitting?
 
+    // Get the instance of the singleton. If there is no instance, create one. 
     public static T GetInstance()
     {
         if (m_applicationIsQuitting) { return null; }
@@ -31,6 +32,7 @@ public abstract class Singleton<T> : MonoBehaviour where T : Component
      * }
      * */
 
+    // Awake is virtual so that it can be overridden in derived classes.
     protected virtual void Awake()
     {
         if (instance == null)
@@ -45,6 +47,7 @@ public abstract class Singleton<T> : MonoBehaviour where T : Component
         else { DontDestroyOnLoad(gameObject); }
     }
 
+    // When the application quits, set the m_applicationIsQuitting to true.
     private void OnApplicationQuit()
     {
         m_applicationIsQuitting = true;

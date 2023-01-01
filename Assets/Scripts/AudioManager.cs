@@ -5,10 +5,11 @@ using System.Collections;
 
 public class AudioManager : Singleton<AudioManager>
 {
-    public Sound[] sounds;
-    public static AudioManager instance;
-    private Sound currentMusic;
+    public Sound[] sounds; // Array of sounds. 
+    public static AudioManager instance; // Instance of the AudioManager.
+    private Sound currentMusic; // The current background music.
 
+    // Start is called before the first frame update
     void Start()
     {
         // Loop through all sounds and add AudioSource component to each
@@ -22,6 +23,7 @@ public class AudioManager : Singleton<AudioManager>
         }
     }
 
+    // Play random background music.
     public void PlayRandomBackgroundMusic()
     {
         // Get all sounds which have the backgroundMusic bool set to true.
@@ -30,7 +32,7 @@ public class AudioManager : Singleton<AudioManager>
         Sound randomBackgroundMusicSound = backgroundMusicSounds[UnityEngine.Random.Range(0, backgroundMusicSounds.Length)];
         // Play the random sound.
         FadeIn(randomBackgroundMusicSound.name);
-
+        // Set the currentMusic variable to the random sound.
         currentMusic = randomBackgroundMusicSound;
     }
 
@@ -44,6 +46,7 @@ public class AudioManager : Singleton<AudioManager>
         FadeOut(currentMusic.name);
     }
 
+    // Play a sound by name.
     public void Play(string name)
     {
         Sound s = Array.Find(sounds, sound => sound.name == name);
@@ -55,6 +58,7 @@ public class AudioManager : Singleton<AudioManager>
         s.source.Play();
     }
 
+    // Stop a sound by name.
     public void Stop(string name)
     {
         Sound s = Array.Find(sounds, sound => sound.name == name);
@@ -88,6 +92,7 @@ public class AudioManager : Singleton<AudioManager>
         StartCoroutine(FadeIn(s.source, FadeTime));
     }
 
+    // Coroutine to fade out a sound. 
     public IEnumerator FadeOut(AudioSource audioSource, float FadeTime)
     {
         float startVolume = audioSource.volume;
@@ -101,13 +106,14 @@ public class AudioManager : Singleton<AudioManager>
         audioSource.volume = startVolume;
     }
 
+    // Coroutine to fade in a sound.
     public IEnumerator FadeIn(AudioSource audioSource, float FadeTime)
     {
         float startVolume = audioSource.volume;
 
         audioSource.Play();
         audioSource.volume = 0f;
-
+        // Fade in the sound.
         while (audioSource.volume < startVolume)
         {
             audioSource.volume += startVolume * Time.fixedDeltaTime / FadeTime;

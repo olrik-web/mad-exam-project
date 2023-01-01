@@ -5,8 +5,8 @@ using TMPro;
 
 public class OrderLineItem : MonoBehaviour
 {
-    public ItemOrder item;
-    public TextMeshProUGUI itemText;
-    public GameObject itemImage;
+    public ItemOrder item; // The item of the order.
+    public TextMeshProUGUI itemText; // The text of the item.
+    public GameObject itemImage; // The image of the item.
     
 }

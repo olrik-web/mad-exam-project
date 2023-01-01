@@ -4,18 +4,12 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    private float speed = 1f;
-    private float zoomSpeed = 0.1f;
-    private float zoomMin = 30f;
+    private float speed = 1f; // The speed of the camera.
+    private float zoomSpeed = 0.1f; // The speed of the camera zoom.
+    private float zoomMin = 30f; // The minimum zoom of the camera.
 
-    private float zoomMax = 120f;
-    private Vector3 defaultPosition = new Vector3(0, 16, -10);
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
+    private float zoomMax = 120f; // The maximum zoom of the camera.
+    private Vector3 defaultPosition = new Vector3(0, 16, -10); // The default position of the camera.
 
     // Update is called once per frame
     void Update()

@@ -4123,7 +4123,7 @@ MonoBehaviour:
   dayText: {fileID: 355153528}
   endScreenText: {fileID: 207257150}
   customers: []
-  dayLength: 180
+  dayLength: 360
   timeLeft: 0
   dayCounter: 0
   hasGameBeenPaused: 0

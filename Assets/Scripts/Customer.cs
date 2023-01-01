@@ -5,12 +5,14 @@ using TMPro;
 
 public class Customer : MonoBehaviour
 {
-    public ItemOrder itemToServe;
-    public bool isServed = false;
-    public int tipAmount;
-    public GameObject chair;
-    public GameObject itemToServeText;
-    public OrderLine orderLine;
+    public ItemOrder itemToServe; // The item the customer wants to be served.
+    public bool isServed = false; // Has the customer been served?
+    public int tipAmount; // The amount of money the customer will tip.
+    public GameObject chair; // The chair the customer is sitting on.
+    public GameObject itemToServeText; // The text that displays the item the customer wants to be served.
+    public OrderLine orderLine; // The order line.
+
+    // StartScript is called when the customer is spawned. It starts the OrderItems coroutine. 
     public void StartScript()
     {
         // Get the order line reference using the tag.
@@ -18,11 +20,14 @@ public class Customer : MonoBehaviour
         // Add items to the itemsToOrder list.   
         StartCoroutine(OrderItems());
     }
+    // ServeItem is called when the player serves an item to the customer. 
     public bool ServeItem(ItemClass item)
     {
         bool served = false;
+        // Check if the customer has ordered an item.
         if (itemToServe != null)
         {
+            // Check if the item the player served is the same as the item the customer ordered.
             if (itemToServe != null && item.itemName == itemToServe.itemName)
             {
                 isServed = true;
@@ -32,12 +37,10 @@ public class Customer : MonoBehaviour
                 GameManager.instance.AddToWallet(tipAmount + itemToServe.itemPrice);
                 // Make the customer leave the restaurant.
                 Leave();
-
                 served = true;
             }
             else
             {
-                Debug.Log("Customer was served the wrong item");
                 Debug.Log("Customer wanted " + itemToServe.itemName + " but was served " + item.itemName);
             }
         }
@@ -48,6 +51,7 @@ public class Customer : MonoBehaviour
         return served;
     }
 
+    // OrderItems is called when the customer is spawned. It waits for a random amount of time between 5 and 10 seconds and then orders an item.
     IEnumerator OrderItems()
     {
         // Wait for a random amount of time between 5 and 10 seconds.
@@ -58,6 +62,7 @@ public class Customer : MonoBehaviour
         // Add the item to the order line.
         orderLine.AddItemToOrder(itemToServe);
     }
+    // Leave is called when the customer is served or when the customer leaves the restaurant.
     public void Leave()
     {
         // Remove the customer from the available chairs list.

@@ -3,35 +3,32 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
+// TODO: Split this class into multiple classes. Each class should be responsible for a single task. E.g. a class for spawning customers.
+// TODO: Add a tutorial to the game.
+// TODO: Add a settings menu to the game.
+// TODO: Add a level up system to the game.
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     public PlayerController player;
-    public List<ItemOrder> itemsToOrder;
-    public List<GameObject> availableChairs;
-    public TextMeshProUGUI walletText;
-    public TextMeshProUGUI dayTimeText;
-    public TextMeshProUGUI dayText;
-    public TextMeshProUGUI endScreenText;
-    private int wallet;
-    private int cashEarned = 0;
-    private bool isDayOver = false;
+    public List<ItemOrder> itemsToOrder; // The items that can be ordered by the customers.
+    public List<GameObject> availableChairs; // The chairs that are available for the customers to sit on.
+    public TextMeshProUGUI walletText; // The text that displays the player's wallet.
+    public TextMeshProUGUI dayTimeText; // The text that displays the time left in the day.
+    public TextMeshProUGUI dayText; // The text that displays the day number.
+    public TextMeshProUGUI endScreenText; // The text that displays the end screen text.
+    private int wallet; // The player's wallet.
+    private int cashEarned = 0; // The amount of money earned in the current day.
+    private bool isDayOver = false; // Is the day over?
+    public List<Customer> customers = new List<Customer>(); // The list of customers in the restaurant.
+    public float dayLength = 360f; // 360 seconds = 6 minutes
+    public float timeLeft; // The time left in the day.
+    public int dayCounter; // Counter for the number of days that have passed. 
+    private CanvasManager canvasManager; // Canvas manager reference.
+    public bool hasGameBeenPaused = false; // Has the game been paused?
+    private AdManager adManager; // Ad manager reference.
 
-    public List<Customer> customers = new List<Customer>();
-
-    // A day in the game is 10 minutes long. This is the time in seconds. 
-    public float dayLength = 600f; // 600 seconds = 10 minutes
-    public float timeLeft;
-    // Counter for the number of days that have passed. 
-    public int dayCounter;
-
-    // Canvas manager reference.
-    private CanvasManager canvasManager;
-
-    public bool hasGameBeenPaused = false;
-
-    private AdManager adManager;
-
+    // Get the instance of the game manager.
     private void Awake()
     {
         instance = this;
@@ -46,9 +43,6 @@ public class GameManager : MonoBehaviour
         // Find the ad manager using the tag.
         adManager = GameObject.FindGameObjectWithTag("AdManager").GetComponent<AdManager>();
 
-        PlayerPrefs.SetInt("DayCounter", 0);
-        PlayerPrefs.SetInt("Wallet", 100);
-
         if (dayCounter == 0)
         {
             // TODO: Add a tutorial to the game.
@@ -62,10 +56,11 @@ public class GameManager : MonoBehaviour
             StartGame();
         }
 
+        // Initialize the itemsToOrder list and the availableChairs list.
         itemsToOrder = new List<ItemOrder>();
         availableChairs = new List<GameObject>();
 
-        // Find all the objects in the scene with the tag "CustomerChair" and add them to the tables list.
+        // Find all the objects in the scene with the tag "CustomerChair" and add them to the available chairs list.
         GameObject[] tempChairs = GameObject.FindGameObjectsWithTag("CustomerChair");
         foreach (GameObject chair in tempChairs)
         {
@@ -80,18 +75,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // StartSpawningCustomers() is called when the player starts the game.
     public void StartSpawningCustomers()
     {
         Debug.Log("Spawning customers");
         StartCoroutine(SpawnCustomer());
     }
 
-    public void StopSpawningCustomers()
-    {
-        Debug.Log("Stopping customer spawning coroutine");
-        StopCoroutine(SpawnCustomer());
-    }
-
+    // SpawnCustomer() is a coroutine that spawns a customer at a random table every 20-60 seconds.
     public IEnumerator SpawnCustomer()
     {
         while (true)
@@ -107,19 +98,30 @@ public class GameManager : MonoBehaviour
                 availableChairs.Remove(randomChair);
                 // Get chair ItemPlaceable component.
                 ItemPlaceable chairItemPlaceable = randomChair.GetComponent<ItemPlaceable>();
+                // Spawn a customer at the chair's position.
                 GameObject customer = Instantiate(Resources.Load("Prefabs/Customer") as GameObject, randomChair.transform.position + new Vector3(0, 1f, 0), Quaternion.identity);
+                // Get the customer component.
                 Customer tempCustomer = customer.GetComponent<Customer>();
+                // Add the customer to the customers list.
                 customers.Add(tempCustomer);
-                Debug.Log("Customers: " + customers.Count);
+                // Set the customer's chair to the random chair.
                 tempCustomer.chair = randomChair;
                 // Set the chair's itemPlaceable to occupied.
                 chairItemPlaceable.isOccupied = true;
                 // Set the customers parent to the chair.
                 customer.transform.SetParent(randomChair.transform);
+                // Start the customer's start script.
                 tempCustomer.StartScript();
             }
         }
     }
+    // StopSpawningCustomers() is called when the player ends the game.
+    public void StopSpawningCustomers()
+    {
+        Debug.Log("Stopping customer spawning coroutine");
+        StopCoroutine(SpawnCustomer());
+    }
+    // AddToWallet() adds the specified amount to the player's wallet.
     public void AddToWallet(int amount)
     {
         cashEarned += amount;
@@ -127,12 +129,14 @@ public class GameManager : MonoBehaviour
         walletText.text = "Coins: " + wallet;
     }
 
+    // RemoveFromWallet() removes the specified amount from the player's wallet.
     public void RemoveFromWallet(int amount)
     {
         wallet -= amount;
         walletText.text = "Coins: " + wallet;
     }
 
+    // GetWallet() returns the player's wallet amount.
     public int GetWallet()
     {
         return wallet;
@@ -186,6 +190,7 @@ public class GameManager : MonoBehaviour
         EndDay();
     }
 
+    // EndDay() is called when the day timer runs out or when the player ends the day.
     public void EndDay()
     {
         // When the day is over, set the isDayOver variable to true.
@@ -228,10 +233,12 @@ public class GameManager : MonoBehaviour
         adManager.ShowInterstitialAd();
     }
 
+    // PauseGame() is called when the player pauses the game by pressing the pause button. 
     public void PauseGame()
     {
         Time.timeScale = 0;
     }
+    // ResumeGame() is called when the player resumes the game by pressing the resume button.
     public void ResumeGame()
     {
         Time.timeScale = 1;

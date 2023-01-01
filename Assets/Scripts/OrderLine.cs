@@ -5,21 +5,8 @@ using UnityEngine.UI;
 
 public class OrderLine : MonoBehaviour
 {
-    public List<ItemOrder> itemsOrdered = new List<ItemOrder>();
-    public List<OrderLineItem> itemsOrderedUIItems = new List<OrderLineItem>();
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
+    public List<ItemOrder> itemsOrdered = new List<ItemOrder>(); // The items ordered.
+    public List<OrderLineItem> itemsOrderedUIItems = new List<OrderLineItem>(); // The items ordered UI items.
 
     public void AddItemToOrder(ItemOrder item)
     {
@@ -55,6 +42,7 @@ public class OrderLine : MonoBehaviour
                     itemsOrderedUIItems[i].itemImage.GetComponent<Image>().color = new Color(1, 1, 1, 1);
                 }
             }
+            // If there are no more items to add to the order line UI, set the item to null. 
             else
             {
                 itemsOrderedUIItems[i].item = null;
