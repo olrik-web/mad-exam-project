@@ -5,7 +5,7 @@ Calm Cuisine is a 3D mobile game created using Unity and C#. It was a project fo
 
 ## Description :page_facing_up:
 
-Calm Cuisine is a game where you play as a chef who has to prepare food for customers. The game is set in a restaurant where you have to prepare food for customers. The customers will come in and order food. You have to prepare the food and serve it to the customers. The restaurant is a 3D environment where you can move around and interact with objects. You can even buy new furniture for your restaurant. It is meant to be a relaxing game where you can just chill and cook food. 
+Calm Cuisine is a game where you play as a chef who has to prepare food for customers. The restaurant is a 3D environment where you can move around and interact with objects. You can even buy new furniture for your restaurant. It is meant to be a relaxing game where you can just chill and cook food. It is developed for mobile devices and utilizes touch controls. 
 
 ## How to play :video_game:
 
